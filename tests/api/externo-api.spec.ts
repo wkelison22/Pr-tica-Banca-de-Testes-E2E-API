@@ -8,7 +8,7 @@ async function buscarNaAppleStore(request: APIRequestContext, termoDeBusca: stri
     return { resposta, corpoJson };
 }
 
-test.describe("Desafio Extra de API - Apple iTunes Store", () => {
+test.describe("Desafio extra de api: Apple iTunes Store", () => {
 
     test('deve procurar um aplicativo valido e retornar um json', async ({ request }) => {
         // chamando a funcao
@@ -36,7 +36,7 @@ test.describe("Desafio Extra de API - Apple iTunes Store", () => {
 
         // Exibindo no console as interacoes
 
-        console.log("--- TESTE: CAMINHO TRISTE ---");
+        console.log("teste do caminho triste");
         console.log("Status code retornado: ", resposta.status());
         console.log("Quantidade de resultados mostrados: ", corpoJson.resultCount);
 
