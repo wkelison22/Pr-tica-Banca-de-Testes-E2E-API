@@ -52,7 +52,7 @@ Abra o seu terminal na pasta do projeto e execute um dos gerenciadores de pacote
   
  * **Usando NPX:**
  ```bash
-  npx playwright --headed
+  npx playwright test --headed
  ```
   
 
