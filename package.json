@@ -1,0 +1,25 @@
+{
+  "name": "pr-tica-banca-de-testes-e2e-api",
+  "version": "1.0.0",
+  "description": "Avaliação prática e dinâmica de palco: execução de testes E2E em tela aberta (--headed) e testes de API rodando no terminal com asserções no console.",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wkelison22/Pr-tica-Banca-de-Testes-E2E-API.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/wkelison22/Pr-tica-Banca-de-Testes-E2E-API/issues"
+  },
+  "homepage": "https://github.com/wkelison22/Pr-tica-Banca-de-Testes-E2E-API#readme",
+  "devDependencies": {
+    "@faker-js/faker": "^10.6.0",
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.6",
+    "dotenv": "^18.0.9"
+  }
+}
