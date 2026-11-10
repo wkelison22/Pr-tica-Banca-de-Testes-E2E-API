@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*import {test as base, expect, Page} from "@playwright/test";
 import { LoginPage } from "../pages/loginPage";
 
@@ -24,3 +25,6 @@ export const test = base.extend<authFixture>({
 });
 
 export {expect} from "@playwright/test"; */
+=======
+teste
+>>>>>>> ef082d739598e22ab78831d3eb7acef7714fce97
