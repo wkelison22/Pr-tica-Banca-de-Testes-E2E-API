@@ -5,6 +5,7 @@ async function buscarNaAppleStore(
     termoDeBusca: string,
     limite?: number
 ) {
+    // faz uma requisicao get para a API de busca da apple store
     const resposta = await request.get('https://itunes.apple.com/search', {
         params: {
             term: termoDeBusca,
@@ -12,13 +13,14 @@ async function buscarNaAppleStore(
             ...(limite && { limit: limite }),
         },
     });
+    // converte a resposta para json
     const corpoJson = await resposta.json();
 
     return { resposta, corpoJson };
 }
-
+// teste de api para a apple store
 test.describe("Desafio extra de api: Apple iTunes Store", () => {
-
+//teste do caminho feliz: procurar um app e retornar um json com o app correspondente 
     test('deve procurar um aplicativo valido e retornar um json', async ({ request }) => {
         const { resposta, corpoJson } = await buscarNaAppleStore(request, 'minecraft', 1);
 
@@ -31,10 +33,10 @@ test.describe("Desafio extra de api: Apple iTunes Store", () => {
         expect(corpoJson.resultCount).toBe(1);
         expect(corpoJson.results[0].kind).toBe('software');
     });
-
+// aqui vai ser o contrario ele vai procurar um app que nao existe e validar que o json retornado nao tem nenhum app correspondente 
    test('deve procurar por um aplicativo invalido e nao retornar app correspondente', async ({ request }) => {
     const termoInvalido = 'appquenaoexiste12345';
-
+//faz a busca de um app que nao existe 
     const { resposta, corpoJson } = await buscarNaAppleStore(request, termoInvalido);
 
     console.log("teste do caminho triste");

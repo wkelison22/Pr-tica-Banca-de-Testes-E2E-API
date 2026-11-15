@@ -1,30 +1,36 @@
-<<<<<<< HEAD
-/*import {test as base, expect, Page} from "@playwright/test";
-import { LoginPage } from "../pages/loginPage";
-
-type authFixture={
+import { test as base, expect, Page } from "@playwright/test";
+import { LoginPage } from "../pages/ModuloXPage"; 
+type authFixture = {
     loginPage: LoginPage;
-    loggedPage: Page;
+    adminPage: Page;
+    clientPage: Page;
 };
 
 export const test = base.extend<authFixture>({
-    //entregando a pagina ja estancianda no test
-    loginPage: async ({page}, use)=>{
+    // Fixture para a tela de login limpa
+    loginPage: async ({ page }, use) => {
         const loginPage = new LoginPage(page);
-        await loginPage.goto();
+        await loginPage.acessar();
         await use(loginPage);
     },
-    //entregando pagina logada admin
-    loggedPage: async({page},use)=>{
+
+    // Fixture para o perfil Administrador
+    adminPage: async ({ page }, use) => {
         const loginPage = new LoginPage(page);
-        await loginPage.goto();
-        await loginPage.login('admin@system.com','AdminPassword123');
+        await loginPage.acessar();
+        await loginPage.efetuarLogin('admin@system.com', 'AdminPassword123'); 
         await page.waitForURL(/painel\.html/);
+        await use(page);
+    },
+
+    // Fixture para o perfil Cliente / Usuário Comum
+    clientPage: async ({ page }, use) => {
+        const loginPage = new LoginPage(page);
+        await loginPage.acessar();
+        await loginPage.efetuarLogin('cliente@system.com', 'ClientPassword123');
+        await page.waitForURL(/dashboard\.html/);
         await use(page);
     }
 });
 
-export {expect} from "@playwright/test"; */
-=======
-teste
->>>>>>> ef082d739598e22ab78831d3eb7acef7714fce97
+export { expect } from "@playwright/test";

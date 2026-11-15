@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 import { test, expect } from '@playwright/test';
 
 const JOGO = 'Plants vs. Zombies GOTY Edition';
@@ -54,6 +54,3 @@ test('Adicionar e remover "Plants vs. Zombies GOTY Edition" do carrinho', async 
   // E o jogo não deve mais aparecer na lista
   await expect(page.getByText(JOGO)).toHaveCount(0);
 });
-=======
-teste
->>>>>>> ef082d739598e22ab78831d3eb7acef7714fce97
