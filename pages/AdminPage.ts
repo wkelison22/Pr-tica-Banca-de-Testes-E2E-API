@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { Page, expect } from '@playwright/test';
 
 // Reúne as ações administrativas utilizadas nos testes E2E.
 export class AdminPage {
@@ -27,9 +27,21 @@ export class AdminPage {
     await this.page.getByText('Administração', { exact: true }).click();
   }
 
-  // Abre o gerenciamento de usuários.
+  // Abre o gerenciamento de usuários, se ainda não estiver ativo.
   async openUsers() {
-    await this.page.getByRole('button', { name: /^Usuários/ }).click();
+    const usersTab = this.page.locator('button[data-tab="users"]');
+
+    await expect(usersTab).toBeVisible();
+
+    if (!(await usersTab.evaluate((element) =>
+      element.classList.contains('active')
+    ))) {
+      await usersTab.click();
+    }
+
+    await expect(
+      this.page.getByPlaceholder('Buscar por nome ou e-mail...')
+    ).toBeVisible();
   }
 
   // Aplica o filtro de usuários bloqueados.

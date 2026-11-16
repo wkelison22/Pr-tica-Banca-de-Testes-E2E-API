@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../fixtures/auth.fixture';
 import { AdminPage } from '../../pages/AdminPage';
 
 // E2E-04 - Valida os perfis de acesso dos usuários.
@@ -31,42 +31,107 @@ test('E2E-04 - Validar perfis de acesso dos usuários', async ({ page }) => {
     page.getByText('LojaQA Oficial lojista@system.com', { exact: true })
   ).toBeVisible();
 
-  console.log('Perfis de acesso identificados corretamente.');
+  console.log('E2E-04: perfis de acesso identificados corretamente.');
 });
 
-// E2E-06 - Impede o login de usuário bloqueado.
-test('E2E-06 - Impedir login de usuário bloqueado', async ({ page }) => {
-  await page.goto(
-    'https://alisonmelo.github.io/tioalison-pe-t4-fap26/projetos-base/01-sistema-login/login.html'
+// E2E-05 - Bloqueia e restaura o perfil de um usuário.
+test('E2E-05 - Bloquear e restaurar perfil de usuário', async ({
+  page,
+  adminApi,
+}) => {
+  const adminPage = new AdminPage(page);
+  const email = 'onaglei@live.co.uk';
+  const adminPassword = process.env.ADMIN_PASSWORD;
+
+  if (!adminPassword) {
+    throw new Error('ADMIN_PASSWORD não encontrada no .env.');
+  }
+
+  // Consulta a API para localizar o ID da conta de teste.
+  const usersResponse = await adminApi.get('users');
+  expect(usersResponse.status()).toBe(200);
+
+  const users = await usersResponse.json();
+
+  const testUser = users.find(
+    (user: { _id?: string; email?: string }) => user.email === email
   );
 
-  // Confirma que a tela de login foi carregada.
-  await expect(
-    page.getByRole('heading', { name: 'Acesso à LojaQA' })
-  ).toBeVisible();
+  expect(testUser).toBeTruthy();
+  expect(testUser._id).toBeTruthy();
 
-  await page.locator('#email').fill('blocked@system.com');
+  try {
+    // Prepara a conta com o perfil CLIENTE.
+    const setupResponse = await adminApi.put(`users/${testUser._id}`, {
+      data: {
+        role: 'user',
+        adminPassword,
+      },
+    });
 
-  await page
-    .getByPlaceholder('Mínimo de 8 caracteres')
-    .fill('Blocked123');
+    expect(setupResponse.status()).toBe(200);
 
-  // Tenta autenticar com a conta bloqueada.
-  await page.getByRole('button', { name: 'Entrar' }).click();
+    const setupData = await setupResponse.json();
+    expect(setupData.user.role).toBe('user');
 
-  // Aguarda e valida a mensagem de bloqueio.
-  await expect(
-    page.getByText('Usuário bloqueado. Tentativa 1 de 3.', {
-      exact: true,
-    })
-  ).toBeVisible({ timeout: 10000 });
+    // Executa a alteração pela interface administrativa.
+    await adminPage.login();
+    await adminPage.openAdministration();
+    await adminPage.openUsers();
 
-  // Confirma que o usuário permanece na tela de login.
-  await expect(page).toHaveURL(/login\.html/);
+    await page
+      .getByPlaceholder('Buscar por nome ou e-mail...')
+      .fill(email);
 
-  await expect(
-    page.getByRole('heading', { name: 'Acesso à LojaQA' })
-  ).toBeVisible();
+    const userCard = page.getByRole('article').filter({
+      hasText: email,
+    });
 
-  console.log('E2E-06: acesso do usuário bloqueado impedido.');
+    await expect(userCard).toBeVisible({ timeout: 10000 });
+
+    // Confirma o perfil inicial na interface.
+    await expect(
+      userCard.locator('select[data-field="role"]')
+    ).toHaveValue('user');
+
+    // Bloqueia o usuário pela interface.
+    await adminPage.updateUserRole(email, 'blocked');
+
+    await expect(
+      userCard.locator('select[data-field="role"]')
+    ).toHaveValue('blocked', { timeout: 10000 });
+
+    // Confirma pela API que o bloqueio foi persistido.
+    await expect.poll(async () => {
+      const verifyResponse = await adminApi.get('users');
+      expect(verifyResponse.status()).toBe(200);
+
+      const updatedUsers = await verifyResponse.json();
+
+      const updatedUser = updatedUsers.find(
+        (user: { _id?: string; role?: string }) =>
+          user._id === testUser._id
+      );
+
+      return updatedUser?.role;
+    }, { timeout: 10000 }).toBe('blocked');
+
+    console.log('E2E-05: perfil alterado para BLOQUEADO e confirmado pela API.');
+
+  } finally {
+    // Restaura o perfil da conta para CLIENTE pela API.
+    const restoreResponse = await adminApi.put(`users/${testUser._id}`, {
+      data: {
+        role: 'user',
+        adminPassword,
+      },
+    });
+
+    expect(restoreResponse.status()).toBe(200);
+
+    const restoreData = await restoreResponse.json();
+    expect(restoreData.user.role).toBe('user');
+
+    console.log('E2E-05: perfil restaurado para CLIENTE pela API.');
+  }
 });
