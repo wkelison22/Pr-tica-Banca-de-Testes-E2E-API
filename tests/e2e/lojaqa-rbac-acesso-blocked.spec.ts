@@ -1,7 +1,7 @@
 import { test, expect } from '../../fixtures/auth.fixture';
 import { AdminPage } from '../../pages/AdminPage';
 
-// E2E-04 - Valida os perfis de acesso dos usuários.
+// E2E-04 - Confere os perfis dos usuários.
 test('E2E-04 - Validar perfis de acesso dos usuários', async ({ page }) => {
   const adminPage = new AdminPage(page);
 
@@ -9,12 +9,12 @@ test('E2E-04 - Validar perfis de acesso dos usuários', async ({ page }) => {
   await adminPage.openAdministration();
   await adminPage.openUsers();
 
-  // Aguarda o carregamento da listagem de usuários.
+  // Espera o campo de pesquisa aparecer na tela.
   await expect(
     page.getByPlaceholder('Buscar por nome ou e-mail...')
   ).toBeVisible({ timeout: 10000 });
 
-  // Verifica a presença dos quatro perfis de acesso.
+  // Confere se os quatro perfis aparecem na tela.
   await expect(
     page.getByText('Administrador Geral admin@system.com', { exact: true })
   ).toBeVisible();
@@ -34,7 +34,7 @@ test('E2E-04 - Validar perfis de acesso dos usuários', async ({ page }) => {
   console.log('E2E-04: perfis de acesso identificados corretamente.');
 });
 
-// E2E-05 - Bloqueia e restaura o perfil de um usuário.
+// E2E-05 - Bloqueia um usuário e depois libera novamente.
 test('E2E-05 - Bloquear e restaurar perfil de usuário', async ({
   page,
   adminApi,
@@ -47,7 +47,7 @@ test('E2E-05 - Bloquear e restaurar perfil de usuário', async ({
     throw new Error('ADMIN_PASSWORD não encontrada no .env.');
   }
 
-  // Consulta a API para localizar o ID da conta de teste.
+  // Busca na API o usuário que será usado no teste.
   const usersResponse = await adminApi.get('users');
   expect(usersResponse.status()).toBe(200);
 
@@ -61,7 +61,7 @@ test('E2E-05 - Bloquear e restaurar perfil de usuário', async ({
   expect(testUser._id).toBeTruthy();
 
   try {
-    // Prepara a conta com o perfil CLIENTE.
+    // Garante que a conta comece como usuário comum.
     const setupResponse = await adminApi.put(`users/${testUser._id}`, {
       data: {
         role: 'user',
@@ -74,7 +74,7 @@ test('E2E-05 - Bloquear e restaurar perfil de usuário', async ({
     const setupData = await setupResponse.json();
     expect(setupData.user.role).toBe('user');
 
-    // Executa a alteração pela interface administrativa.
+    // Faz o login e acessa a tela de administração.
     await adminPage.login();
     await adminPage.openAdministration();
     await adminPage.openUsers();
@@ -89,19 +89,19 @@ test('E2E-05 - Bloquear e restaurar perfil de usuário', async ({
 
     await expect(userCard).toBeVisible({ timeout: 10000 });
 
-    // Confirma o perfil inicial na interface.
+    // Confere se o usuário está com o perfil comum.
     await expect(
       userCard.locator('select[data-field="role"]')
     ).toHaveValue('user');
 
-    // Bloqueia o usuário pela interface.
+    // Altera o perfil do usuário para bloqueado pela tela.
     await adminPage.updateUserRole(email, 'blocked');
 
     await expect(
       userCard.locator('select[data-field="role"]')
     ).toHaveValue('blocked', { timeout: 10000 });
 
-    // Confirma pela API que o bloqueio foi persistido.
+    // Confere na API se o bloqueio foi realmente salvo.
     await expect.poll(async () => {
       const verifyResponse = await adminApi.get('users');
       expect(verifyResponse.status()).toBe(200);
@@ -119,7 +119,7 @@ test('E2E-05 - Bloquear e restaurar perfil de usuário', async ({
     console.log('E2E-05: perfil alterado para BLOQUEADO e confirmado pela API.');
 
   } finally {
-    // Restaura o perfil da conta para CLIENTE pela API.
+    // Volta o usuário para o perfil comum pela API.
     const restoreResponse = await adminApi.put(`users/${testUser._id}`, {
       data: {
         role: 'user',
