@@ -79,6 +79,11 @@ test('E2E-05 - Bloquear e restaurar perfil de usuário', async ({
     await adminPage.openAdministration();
     await adminPage.openUsers();
 
+    // Confere se o campo de pesquisa está visível.
+    await expect(
+      page.getByPlaceholder('Buscar por nome ou e-mail...')
+    ).toBeVisible({ timeout: 10000 });
+
     await page
       .getByPlaceholder('Buscar por nome ou e-mail...')
       .fill(email);

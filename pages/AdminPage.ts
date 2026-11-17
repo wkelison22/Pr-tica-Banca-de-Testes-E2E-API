@@ -1,4 +1,4 @@
-import { Page, expect } from '@playwright/test';
+import { Page } from '@playwright/test';
 
 // Reúne as ações administrativas utilizadas nos testes E2E.
 export class AdminPage {
@@ -31,7 +31,7 @@ export class AdminPage {
   async openUsers() {
     const usersTab = this.page.locator('button[data-tab="users"]');
 
-    await expect(usersTab).toBeVisible();
+    await usersTab.waitFor({ state: 'visible' });
 
     if (!(await usersTab.evaluate((element) =>
       element.classList.contains('active')
@@ -39,9 +39,9 @@ export class AdminPage {
       await usersTab.click();
     }
 
-    await expect(
-      this.page.getByPlaceholder('Buscar por nome ou e-mail...')
-    ).toBeVisible();
+    await this.page
+      .getByPlaceholder('Buscar por nome ou e-mail...')
+      .waitFor({ state: 'visible' });
   }
 
   // Aplica o filtro de usuários bloqueados.
@@ -50,7 +50,7 @@ export class AdminPage {
   }
 
   // Altera o perfil de acesso de um usuário específico.
-  async updateUserRole(email: string, role: string) {
+  async updateUserRole(email: string, role: 'user' | 'blocked') {
     const userCard = this.page.getByRole('article').filter({
       hasText: email,
     });
