@@ -33,9 +33,11 @@ export class AdminPage {
 
     await usersTab.waitFor({ state: 'visible' });
 
-    if (!(await usersTab.evaluate((element) =>
-      element.classList.contains('active')
-    ))) {
+    if (
+      !(await usersTab.evaluate((element) =>
+        element.classList.contains('active')
+      ))
+    ) {
       await usersTab.click();
     }
 
@@ -71,7 +73,6 @@ export class AdminPage {
     // Aguarda o botão de salvamento ficar visível.
     await saveButton.waitFor({
       state: 'visible',
-      timeout: 10000,
     });
 
     await saveButton.click();

@@ -12,7 +12,7 @@ test('E2E-04 - Validar perfis de acesso dos usuários', async ({ page }) => {
   // Espera o campo de pesquisa aparecer na tela.
   await expect(
     page.getByPlaceholder('Buscar por nome ou e-mail...')
-  ).toBeVisible({ timeout: 10000 });
+  ).toBeVisible();
 
   // Confere se os quatro perfis aparecem na tela.
   await expect(
@@ -82,7 +82,7 @@ test('E2E-05 - Bloquear e restaurar perfil de usuário', async ({
     // Confere se o campo de pesquisa está visível.
     await expect(
       page.getByPlaceholder('Buscar por nome ou e-mail...')
-    ).toBeVisible({ timeout: 10000 });
+    ).toBeVisible();
 
     await page
       .getByPlaceholder('Buscar por nome ou e-mail...')
@@ -92,7 +92,7 @@ test('E2E-05 - Bloquear e restaurar perfil de usuário', async ({
       hasText: email,
     });
 
-    await expect(userCard).toBeVisible({ timeout: 10000 });
+    await expect(userCard).toBeVisible();
 
     // Confere se o usuário está com o perfil comum.
     await expect(
@@ -104,7 +104,7 @@ test('E2E-05 - Bloquear e restaurar perfil de usuário', async ({
 
     await expect(
       userCard.locator('select[data-field="role"]')
-    ).toHaveValue('blocked', { timeout: 10000 });
+    ).toHaveValue('blocked');
 
     // Confere na API se o bloqueio foi realmente salvo.
     await expect.poll(async () => {
@@ -119,7 +119,7 @@ test('E2E-05 - Bloquear e restaurar perfil de usuário', async ({
       );
 
       return updatedUser?.role;
-    }, { timeout: 10000 }).toBe('blocked');
+    }).toBe('blocked');
 
     console.log('E2E-05: perfil alterado para BLOQUEADO e confirmado pela API.');
 
@@ -139,4 +139,56 @@ test('E2E-05 - Bloquear e restaurar perfil de usuário', async ({
 
     console.log('E2E-05: perfil restaurado para CLIENTE pela API.');
   }
+});
+
+// E2E-06 - Impede que usuários comuns visualizem a área administrativa.
+test('E2E-06 - Impedir acesso à Administração por usuário comum', async ({
+  page,
+}) => {
+  await page.goto(
+    'https://alisonmelo.github.io/tioalison-pe-t4-fap26/projetos-base/01-sistema-login/login.html'
+  );
+
+  await page.locator('#email').fill('user@system.com');
+  await page.locator('#password').fill('UserPassword123');
+
+  await Promise.all([
+    page.waitForURL('**/painel.html'),
+    page.getByRole('button', { name: 'Entrar' }).click(),
+  ]);
+
+  // Confirma que o usuário comum acessou seu painel.
+  await expect(page.getByRole('link', { name: 'Meu Perfil' })).toBeVisible();
+
+  // Confirma que a área administrativa não está disponível.
+  await expect(
+    page.getByRole('link', { name: 'Administração' })
+  ).toHaveCount(0);
+
+  console.log('E2E-06: usuário comum sem acesso à Administração.');
+});
+
+// E2E-07 - Impede que usuários bloqueados façam login.
+test('E2E-07 - Impedir login de usuário bloqueado', async ({ page }) => {
+  await page.goto(
+    'https://alisonmelo.github.io/tioalison-pe-t4-fap26/projetos-base/01-sistema-login/login.html'
+  );
+
+  await page.locator('#email').fill('blocked@system.com');
+  await page.locator('#password').fill('Blocked123');
+
+  await page.getByRole('button', { name: 'Entrar' }).click();
+
+  // Confirma que o sistema apresentou uma mensagem de erro.
+  await expect(page.locator('#errorMessage')).toBeVisible();
+
+  // Confirma que o usuário permaneceu na tela de login.
+  await expect(page).toHaveURL(/login\.html/);
+
+  // Confirma que nenhum token de autenticação foi armazenado.
+  await expect
+    .poll(() => page.evaluate(() => localStorage.getItem('token')))
+    .toBeNull();
+
+  console.log('E2E-07: login de usuário bloqueado impedido.');
 });
