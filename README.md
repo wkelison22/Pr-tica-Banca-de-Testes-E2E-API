@@ -2,7 +2,6 @@
 
 Este repositório contém a suíte de testes automatizados de ponta a ponta (E2E) desenvolvida para a validação do Módulo 12 (Admin: Moderação de Usuários & RBAC) da plataforma **Loja QA**, utilizando boas práticas de mercado e padrões exigidos em automação de qualidade de software.
 
-
 ##  O que o projeto contém
 
 * **Testes E2E (Playwright + TypeScript):** Fluxos automatizados cobrindo os cenários críticos de autenticação, atualização de dados cadastrais, gerenciamento de endereços e segurança da conta no Módulo 12.
@@ -24,7 +23,7 @@ Abra o seu terminal na pasta do projeto e execute um dos gerenciadores de pacote
   
  * **Usando NPM (Segunda opção recomendada):**
 ```bash
-  yarn install
+  npm install
    ```
    
  ### 2. Instalar os Navegadores do Playwright
@@ -69,7 +68,8 @@ npx playwright test externo-api.spec.ts
 
 **Evidência da execução:**
 
-![Execução dos testes em modo headless](./docs/img/execucao-headless.png)
+<img width="1917" height="1020" alt="execucao-headless" src="https://github.com/user-attachments/assets/89aca43b-6cf4-44d0-99c0-87ca1ece93a7" />
+
 
 ---
 
@@ -84,7 +84,8 @@ npx playwright test Steam-externo-e2e.spec.ts --headed
 
 **Evidência da execução:**
 
-![Execução dos testes em modo headed](./docs/img/execucao-headed.png)
+<img width="1917" height="1017" alt="image" src="https://github.com/user-attachments/assets/de6799ec-a684-4f68-ac28-0a90247d68fc" />
+
 
 ### 4. Executar em modo interativo (UI Mode)
 
@@ -97,7 +98,8 @@ npx playwright test Steam-externo-e2e.spec.ts --ui
 
 **Evidência da execução:**
 
-![Playwright UI Mode](./docs/img/execucao-ui-mode.png)
+<img width="1917" height="1017" alt="image" src="https://github.com/user-attachments/assets/4d4aa690-bce1-414c-9805-6d3f9d38ab0d" />
+
 
 ---
 
@@ -112,7 +114,8 @@ npx playwright show-report
 
 **Evidência do relatório:**
 
-![Relatório HTML do Playwright](./docs/img/relatorio-html.png)
+<img width="1917" height="973" alt="image" src="https://github.com/user-attachments/assets/f26a65ca-68c6-45c1-8fe0-9d9da8c15d20" />
+
 
 ---
 
