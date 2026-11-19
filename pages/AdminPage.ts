@@ -5,20 +5,13 @@ export class AdminPage {
   constructor(private page: Page) {}
 
   // Realiza o login administrativo e aguarda o carregamento dos usuários.
-  async login() {
+  async login(
+    adminEmail = process.env.ADMIN_EMAIL || 'admin@system.com',
+    adminPassword = process.env.ADMIN_LOGIN_PASSWORD || 'AdminPassword123'
+  ) {
     await this.page.goto(
       'https://alisonmelo.github.io/tioalison-pe-t4-fap26/projetos-base/01-sistema-login/login.html'
     );
-
-    // Obtém as credenciais administrativas do arquivo .env.
-    const adminEmail = process.env.ADMIN_EMAIL;
-    const adminPassword = process.env.ADMIN_LOGIN_PASSWORD;
-
-    if (!adminEmail || !adminPassword) {
-      throw new Error(
-        'Credenciais administrativas não encontradas no arquivo .env.'
-      );
-    }
 
     await this.page.locator('#email').fill(adminEmail);
 

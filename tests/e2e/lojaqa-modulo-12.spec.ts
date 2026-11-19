@@ -1,4 +1,3 @@
-
 import { test, expect } from '../../fixtures/auth.fixture';
 import { AdminPage } from '../../pages/AdminPage';
 
@@ -6,17 +5,10 @@ import { AdminPage } from '../../pages/AdminPage';
 test('E2E-05 - Bloquear, impedir login e restaurar usuário', async ({
   page,
   browser,
+  testUser,
 }) => {
   const adminPage = new AdminPage(page);
-
-  const email = process.env.LOJAQA_TEST_USER_EMAIL;
-  const password = process.env.LOJAQA_TEST_USER_PASSWORD;
-
-  if (!email || !password) {
-    throw new Error(
-      'LOJAQA_TEST_USER_EMAIL ou LOJAQA_TEST_USER_PASSWORD não encontrada no .env.'
-    );
-  }
+  const { email, password } = testUser;
 
   // Cria uma segunda sessão independente para simular o usuário.
   const userPage = await browser.newPage();
@@ -29,9 +21,7 @@ test('E2E-05 - Bloquear, impedir login e restaurar usuário', async ({
     await adminPage.openAdministration();
     await adminPage.openUsers();
 
-    const searchField = page.getByPlaceholder(
-      'Buscar por nome ou e-mail...'
-    );
+    const searchField = page.getByPlaceholder('Buscar por nome ou e-mail...');
 
     await searchField.fill(email);
 
@@ -80,7 +70,6 @@ test('E2E-05 - Bloquear, impedir login e restaurar usuário', async ({
       .toBeNull();
 
     console.log('E2E-05: login do usuário bloqueado impedido.');
-
   } finally {
     try {
       if (restorationNeeded) {
