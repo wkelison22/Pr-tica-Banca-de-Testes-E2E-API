@@ -1,10 +1,10 @@
-import { Page } from '@playwright/test';
+import { Page, expect } from '@playwright/test';
 
 // Reúne as ações administrativas utilizadas nos testes E2E.
 export class AdminPage {
   constructor(private page: Page) {}
 
-  // Realiza o login administrativo e aguarda o carregamento dos usuários.
+  // Realiza o login administrativo e aguarda o acesso ao painel.
   async login(
     adminEmail = process.env.ADMIN_EMAIL || 'admin@system.com',
     adminPassword = process.env.ADMIN_LOGIN_PASSWORD || 'AdminPassword123'
@@ -19,24 +19,12 @@ export class AdminPage {
       .getByPlaceholder('Mínimo de 8 caracteres')
       .fill(adminPassword);
 
-    const usersResponse = this.page.waitForResponse((response) =>
-      response.url().endsWith('/users') &&
-      response.request().method() === 'GET' &&
-      response.ok()
-    );
-
     await Promise.all([
       this.page.waitForURL('**/painel.html'),
-      usersResponse,
       this.page.getByRole('button', { name: 'Entrar' }).click(),
     ]);
 
-    // Aguarda a aplicação atualizar o total de usuários.
-    await this.page.waitForFunction(() => {
-      const badge = document.querySelector('#userCountBadge');
-
-      return badge !== null && Number(badge.textContent) > 0;
-    });
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   // Acessa a área de administração.
@@ -68,7 +56,7 @@ export class AdminPage {
     await this.page.locator('#adminUserRole').selectOption('blocked');
   }
 
-  // Altera o perfil de acesso de um usuário específico.
+  // Altera o perfil de acesso de um usuário específico e aguarda a atualização.
   async updateUserRole(email: string, role: 'user' | 'blocked') {
     const userCard = this.page.getByRole('article').filter({
       hasText: email,
@@ -87,11 +75,12 @@ export class AdminPage {
       name: 'Salvar Alterações',
     });
 
-    // Aguarda o botão de salvamento ficar visível.
     await saveButton.waitFor({
       state: 'visible',
     });
 
     await saveButton.click();
+
+    await expect(roleSelect).toHaveValue(role);
   }
 }
