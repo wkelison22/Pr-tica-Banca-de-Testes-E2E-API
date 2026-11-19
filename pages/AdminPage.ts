@@ -4,22 +4,46 @@ import { Page } from '@playwright/test';
 export class AdminPage {
   constructor(private page: Page) {}
 
-  // Realiza o login administrativo e aguarda o acesso ao painel.
+  // Realiza o login administrativo e aguarda o carregamento dos usuários.
   async login() {
     await this.page.goto(
       'https://alisonmelo.github.io/tioalison-pe-t4-fap26/projetos-base/01-sistema-login/login.html'
     );
 
-    await this.page.locator('#email').fill('admin@system.com');
+    // Obtém as credenciais administrativas do arquivo .env.
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_LOGIN_PASSWORD;
+
+    if (!adminEmail || !adminPassword) {
+      throw new Error(
+        'Credenciais administrativas não encontradas no arquivo .env.'
+      );
+    }
+
+    await this.page.locator('#email').fill(adminEmail);
 
     await this.page
       .getByPlaceholder('Mínimo de 8 caracteres')
-      .fill('AdminPassword123');
+      .fill(adminPassword);
+
+    const usersResponse = this.page.waitForResponse((response) =>
+      response.url().endsWith('/users') &&
+      response.request().method() === 'GET' &&
+      response.ok()
+    );
 
     await Promise.all([
       this.page.waitForURL('**/painel.html'),
+      usersResponse,
       this.page.getByRole('button', { name: 'Entrar' }).click(),
     ]);
+
+    // Aguarda a aplicação atualizar o total de usuários.
+    await this.page.waitForFunction(() => {
+      const badge = document.querySelector('#userCountBadge');
+
+      return badge !== null && Number(badge.textContent) > 0;
+    });
   }
 
   // Acessa a área de administração.
